@@ -3,7 +3,14 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
+	"strconv"
+
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	pb "github.com/maya-fisher/birthday-service/proto"
+	"google.golang.org/grpc"
 )
 
 func PostHomePage(c *gin.Context) {
@@ -34,51 +41,128 @@ func PostHomePage(c *gin.Context) {
 }
 
 
-func createPerson(c *gin.Context) {
-	name := c.Param("name")
-	birthday := c.Param("birthday")
-
-	c.JSON(200, gin.H{
-		"name": name,
-		"birthday": birthday,
-	})
-}
-
-func getPersonById(c *gin.Context) {
-	id := c.Param("id")
-
-	c.JSON(200, gin.H{
-		"id": id,
-	})
-}
-
-func updatePersonBirthday(c *gin.Context) {
-	id := c.Param("id")
-	birthday := c.Param("birthday")
-
-	c.JSON(200, gin.H{
-		"id": id,
-		"birthday": birthday,
-	})
-}
-
-func deletePersonById(c *gin.Context) {
-	id := c.Param("id")
-
-	c.JSON(200, gin.H{
-		"id to delete": id,
-	})
-}
-
+const (
+	address = "localhost:50053"
+)
 
 func main() {
-	r := gin.Default()
-	// r.POST("/", PostHomePage)
 
-	r.POST("/:name/:birthday", createPerson)
-	r.GET("/:id", getPersonById)
-	r.PUT("/:id/:birthday", updatePersonBirthday)
-	r.DELETE("/:id", deletePersonById)
+	// Set up a connection to the server.
+
+	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+
+	defer conn.Close()
+
+	client := pb.NewBirthdaysClient(conn)
+
+	r := gin.Default()
+
+
+	r.PUT("/:id/:birthday", func (c *gin.Context)  {
+		id := c.Param("id")
+		birthday, err := strconv.ParseInt(c.Param("birthday"), 10, 64)
+
+		person := &pb.Person{
+			Name: id,
+			Birthday: birthday,
+		}
+		req := &pb.GetBirthdayRequest{Person: person}
+		res, err := client.UpdateBirthdayByIdAndName(c, req)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"id": res, //res should return any id for now 
+		})
+
+	})
+
+	r.DELETE("/:id", func (c *gin.Context)  {
+		id := c.Param("id")
+
+		req := &pb.GetByIDRequest{Id: id}
+		res, err := client.DeleteBirthdayByID(c, req)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"id": res, //res should return nothing for now 
+		})
+	})
+
+
+	r.GET("/:id", func (c *gin.Context)  {
+		id := c.Param("id")
+
+		// Contact the server and print out its response.
+
+		req := &pb.GetByIDRequest{Id: id}
+		res, err := client.GetBirthdayPersonByID(c, req)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"id": res, //res should return nothing for now 
+		})
+	
+	})
+
+	r.POST("/:name/:month/:day/:year", func (c *gin.Context)  {
+		// month := c.Param("month")
+		// day := c.Param("day")
+		// year := c.Param("year")
+
+		// date := time.Date(year, time.Month(mon), day, 0, 0, 0, 0, time.UTC)
+
+		name := c.Param("name")
+		bi := c.Param("birthday")
+		birthday, err := strconv.ParseInt(bi, 10, 64)
+	
+		// Contact the server and print out its response.
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		person := &pb.Person{
+			Name: name,
+			Birthday: birthday,
+		}
+
+		req := &pb.GetBirthdayRequest{Person: person}
+		fmt.Println(req)
+		res, err := client.CreateBirthdayPersonBy(c, req)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"id": res, //res should return any id for now 
+		})
+	})
+
+	// Run http server
 
 	r.Run(":5050")
 }
