@@ -1,53 +1,21 @@
 package main 
 
 import (
-	"fmt"
-	"io/ioutil"
 	"log"
-	"strconv"
-
 	"net/http"
-
+	"fmt"
 	"github.com/gin-gonic/gin"
 	pb "github.com/maya-fisher/birthday-service/proto"
 	"google.golang.org/grpc"
 )
 
-func PostHomePage(c *gin.Context) {
-	// var req createPerson
-	// if err := c.ShouldBindJSON(&req); err != nil {
-	// 	fmt.Println("error!!!!")
-	// }
-
-	// arg := createPerson{
-	// 	name: req.name,
-	// 	age: req.age,
-	// }
-
-	// fmt.Println("name",req.name, req.age)
-
-	body := c.Request.Body
-	value, err := ioutil.ReadAll(body)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	fmt.Println((string(value)))
-
-	c.JSON(200, gin.H{
-		"message": string(value),
-	})
-
-}
-
 
 const (
-	address = "localhost:50053"
+	address = "localhost:50054"
+	port = ":6060"
 )
 
 func main() {
-
-	// Set up a connection to the server.
 
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
@@ -58,20 +26,23 @@ func main() {
 
 	client := pb.NewBirthdaysClient(conn)
 
+
 	r := gin.Default()
 
 
-	r.PUT("/:id/:birthday", func (c *gin.Context)  {
-		id := c.Param("id")
-		birthday, err := strconv.ParseInt(c.Param("birthday"), 10, 64)
+	r.PUT("/birthday/:userId", func (c *gin.Context)  {
+		userId := c.Param("userId")
 
 		person := &pb.Person{
-			Name: id,
-			Birthday: birthday,
+			UserId: userId,
 		}
+		err = c.Bind(&person)
+
+		fmt.Println(person)
+
 		req := &pb.GetBirthdayRequest{Person: person}
-		res, err := client.UpdateBirthdayByIdAndName(c, req)
-
+		result, err := client.UpdateBirthdayByIdAndName(c, req)
+		fmt.Println(result)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
@@ -79,17 +50,15 @@ func main() {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"id": res, //res should return any id for now 
-		})
+		c.JSON(http.StatusOK,result)
 
 	})
 
-	r.DELETE("/:id", func (c *gin.Context)  {
-		id := c.Param("id")
+	r.DELETE("/birthday/:userId", func (c *gin.Context)  {
+		userId := c.Param("userId")
 
-		req := &pb.GetByIDRequest{Id: id}
-		res, err := client.DeleteBirthdayByID(c, req)
+		req := &pb.GetByIDRequest{UserId: userId}
+		result, err := client.DeleteBirthdayByID(c, req)
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -98,19 +67,13 @@ func main() {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"id": res, //res should return nothing for now 
-		})
+		c.JSON(http.StatusOK,result)
 	})
 
-
-	r.GET("/:id", func (c *gin.Context)  {
-		id := c.Param("id")
-
-		// Contact the server and print out its response.
-
-		req := &pb.GetByIDRequest{Id: id}
-		res, err := client.GetBirthdayPersonByID(c, req)
+	r.GET("/birthday/:userId", func (c *gin.Context)  {
+		userId := c.Param("userId")
+		req := &pb.GetByIDRequest{UserId: userId}
+		result, err := client.GetBirthdayPersonByID(c, req)
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -119,36 +82,19 @@ func main() {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"id": res, //res should return nothing for now 
-		})
+		c.JSON(http.StatusOK,result)
 	
 	})
 
-	r.POST("/:name/:month/:day/:year", func (c *gin.Context)  {
-		// month := c.Param("month")
-		// day := c.Param("day")
-		// year := c.Param("year")
 
-		// date := time.Date(year, time.Month(mon), day, 0, 0, 0, 0, time.UTC)
+	r.POST("/birthday", func (c *gin.Context)  {
 
-		name := c.Param("name")
-		bi := c.Param("birthday")
-		birthday, err := strconv.ParseInt(bi, 10, 64)
-	
-		// Contact the server and print out its response.
-		if err != nil {
-			fmt.Println(err)
-		}
 
-		person := &pb.Person{
-			Name: name,
-			Birthday: birthday,
-		}
+		person := &pb.Person{}
+		err := c.Bind(&person)
 
 		req := &pb.GetBirthdayRequest{Person: person}
-		fmt.Println(req)
-		res, err := client.CreateBirthdayPersonBy(c, req)
+		result, err := client.CreateBirthdayPersonBy(c, req)
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -157,12 +103,9 @@ func main() {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"id": res, //res should return any id for now 
-		})
+		c.JSON(http.StatusOK,result)
 	})
 
-	// Run http server
-
-	r.Run(":5050")
+	
+	r.Run(port)
 }
