@@ -42,7 +42,6 @@ func main() {
 
 		req := &pb.GetBirthdayRequest{Person: person}
 		result, err := client.UpdateBirthdayByIdAndName(c, req)
-		fmt.Println(result)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
@@ -58,6 +57,7 @@ func main() {
 		userId := c.Param("userId")
 
 		req := &pb.GetByIDRequest{UserId: userId}
+		fmt.Println(req)
 		result, err := client.DeleteBirthdayByID(c, req)
 
 		if err != nil {
@@ -86,17 +86,22 @@ func main() {
 	
 	})
 
-
 	r.POST("/birthday", func (c *gin.Context)  {
 
 
 		person := &pb.Person{}
 		err := c.Bind(&person)
 
+		fmt.Println(person)
+
 		req := &pb.GetBirthdayRequest{Person: person}
+		fmt.Println(req)
+
 		result, err := client.CreateBirthdayPersonBy(c, req)
 
+
 		if err != nil {
+			fmt.Println("err",err)
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})

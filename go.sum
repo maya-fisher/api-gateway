@@ -95,10 +95,10 @@ github.com/markbates/oncer v0.0.0-20181203154359-bf2de49a0be2/go.mod h1:Ld9puTsI
 github.com/markbates/safe v1.0.1/go.mod h1:nAqgmRi7cY2nqMc92/bSEeQA+R4OheNU2T1kNSCBdG0=
 github.com/mattn/go-isatty v0.0.12 h1:wuysRhFDzyxgEmMf5xjvJ2M9dZoWAXNNr5LSBS7uHXY=
 github.com/mattn/go-isatty v0.0.12/go.mod h1:cbi8OIDigv2wuxKPP5vlRcQ1OAZbq2CE4Kysco4FUpU=
-github.com/maya-fisher/birthday-service v0.0.0-20210421161057-55f3c8e00a1a h1:GQ4oB3U/FzTWuXp1HoVr1qKCUUE1jZIqmyinursXusM=
-github.com/maya-fisher/birthday-service v0.0.0-20210421161057-55f3c8e00a1a/go.mod h1:xvJe1nfRnoxNvX7nN2scp++gt0Hkk+UItI7u3s1d7dk=
-github.com/maya-fisher/birthday-service v0.0.0-20210422155304-0fab1a027439 h1:Q0wRX5ApB18UA7NXLQyo9dcCijb7Wc8iHgmNczG8i/U=
-github.com/maya-fisher/birthday-service v0.0.0-20210422155304-0fab1a027439/go.mod h1:xvJe1nfRnoxNvX7nN2scp++gt0Hkk+UItI7u3s1d7dk=
+github.com/maya-fisher/birthday-service v0.0.0-20210422160335-c64deb615853 h1:z2OMeQO7iX0AiuAF2Q4shPlCfmHi3v07/HhXmtIzrl4=
+github.com/maya-fisher/birthday-service v0.0.0-20210422160335-c64deb615853/go.mod h1:xvJe1nfRnoxNvX7nN2scp++gt0Hkk+UItI7u3s1d7dk=
+github.com/maya-fisher/birthday-service v0.0.0-20210425073800-0767901489fe h1:GIeTcR6rvhgmZKqMmrRoL7wW6QXDCPPY5mQq55xjCk4=
+github.com/maya-fisher/birthday-service v0.0.0-20210425073800-0767901489fe/go.mod h1:ADKmG2l9MPCTOooNHuYLnT1i7EP46BtIG89N5sq3hLM=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 h1:ZqeYNhU3OHLH3mGKHDcjJRFFRrJa6eAM5H+CtDdOsPc=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742 h1:Esafd1046DLDQ0W1YjYsBW+p8U2u7vzgW2SQVmlNazg=
