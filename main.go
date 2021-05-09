@@ -15,6 +15,8 @@ const (
 	port = ":6060"
 )
 
+
+
 func main() {
 
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
@@ -28,6 +30,16 @@ func main() {
 
 
 	r := gin.Default()
+
+	//fix this 
+	r.OPTIONS("/birthday", func (c *gin.Context) {
+		fmt.Println("in OPTIONS function")
+	})
+
+	r.OPTIONS("/birthday/:userId", func (c *gin.Context) {
+		fmt.Println("in OPTIONS function")
+	})
+
 
 
 	r.PUT("/birthday/:userId", func (c *gin.Context)  {
@@ -87,7 +99,6 @@ func main() {
 	})
 
 	r.POST("/birthday", func (c *gin.Context)  {
-
 
 		person := &pb.Person{}
 		err := c.Bind(&person)
