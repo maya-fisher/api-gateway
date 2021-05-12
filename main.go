@@ -1,20 +1,43 @@
-package main 
+package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"fmt"
+	"strings"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	pb "github.com/maya-fisher/birthday-service/proto"
 	"google.golang.org/grpc"
 )
 
-
 const (
 	address = "localhost:50054"
-	port = ":6060"
+	port    = ":6060"
 )
 
+
+func corsRouterConfig() cors.Config {
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AddExposeHeaders("x-uploadid")
+	corsConfig.AllowAllOrigins = false
+	corsConfig.AllowWildcard = true
+	corsConfig.AllowOrigins = strings.Split("http://localhost*", ",")
+	corsConfig.AllowCredentials = true
+	corsConfig.AddAllowHeaders(
+		"x-content-length",
+		"authorization",
+		"cache-control",
+		"x-requested-with",
+		"content-disposition",
+		"content-range",
+		"destination",
+		"fileID",
+	)
+
+	return corsConfig
+}
 
 
 func main() {
@@ -28,21 +51,15 @@ func main() {
 
 	client := pb.NewBirthdaysClient(conn)
 
-
 	r := gin.Default()
 
-	//fix this 
-	r.OPTIONS("/birthday", func (c *gin.Context) {
-		fmt.Println("in OPTIONS function")
-	})
-
-	r.OPTIONS("/birthday/:userId", func (c *gin.Context) {
-		fmt.Println("in OPTIONS function")
-	})
+	r.Use(
+		cors.New(corsRouterConfig()),
+	)
 
 
 
-	r.PUT("/birthday/:userId", func (c *gin.Context)  {
+	r.PUT("/birthday/:userId", func(c *gin.Context) {
 		userId := c.Param("userId")
 
 		person := &pb.Person{
@@ -61,11 +78,11 @@ func main() {
 			return
 		}
 
-		c.JSON(http.StatusOK,result)
+		c.JSON(http.StatusOK, result)
 
 	})
 
-	r.DELETE("/birthday/:userId", func (c *gin.Context)  {
+	r.DELETE("/birthday/:userId", func(c *gin.Context) {
 		userId := c.Param("userId")
 
 		req := &pb.GetByIDRequest{UserId: userId}
@@ -79,10 +96,10 @@ func main() {
 			return
 		}
 
-		c.JSON(http.StatusOK,result)
+		c.JSON(http.StatusOK, result)
 	})
 
-	r.GET("/birthday/:userId", func (c *gin.Context)  {
+	r.GET("/birthday/:userId", func(c *gin.Context) {
 		userId := c.Param("userId")
 		req := &pb.GetByIDRequest{UserId: userId}
 		result, err := client.GetBirthdayPersonByID(c, req)
@@ -94,11 +111,11 @@ func main() {
 			return
 		}
 
-		c.JSON(http.StatusOK,result)
-	
+		c.JSON(http.StatusOK, result)
+
 	})
 
-	r.POST("/birthday", func (c *gin.Context)  {
+	r.POST("/birthday", func(c *gin.Context) {
 
 		person := &pb.Person{}
 		err := c.Bind(&person)
@@ -110,18 +127,16 @@ func main() {
 
 		result, err := client.CreateBirthdayPersonBy(c, req)
 
-
 		if err != nil {
-			fmt.Println("err",err)
+			fmt.Println("err", err)
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
 
-		c.JSON(http.StatusOK,result)
+		c.JSON(http.StatusOK, result)
 	})
 
-	
 	r.Run(port)
 }
