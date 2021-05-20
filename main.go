@@ -17,7 +17,6 @@ const (
 	port    = ":6060"
 )
 
-
 func corsRouterConfig() cors.Config {
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AddExposeHeaders("x-uploadid")
@@ -40,6 +39,12 @@ func corsRouterConfig() cors.Config {
 }
 
 
+type person struct {
+	name string 
+	birthday int64
+	userId string 
+}
+
 func main() {
 
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
@@ -56,8 +61,6 @@ func main() {
 	r.Use(
 		cors.New(corsRouterConfig()),
 	)
-
-
 
 	r.PUT("/birthday/:userId", func(c *gin.Context) {
 		userId := c.Param("userId")
@@ -82,11 +85,12 @@ func main() {
 
 	})
 
+
+
 	r.DELETE("/birthday/:userId", func(c *gin.Context) {
 		userId := c.Param("userId")
 
 		req := &pb.GetByIDRequest{UserId: userId}
-		fmt.Println(req)
 		result, err := client.DeleteBirthdayByID(c, req)
 
 		if err != nil {
@@ -99,11 +103,14 @@ func main() {
 		c.JSON(http.StatusOK, result)
 	})
 
+
+
 	r.GET("/birthday/:userId", func(c *gin.Context) {
+
 		userId := c.Param("userId")
 		req := &pb.GetByIDRequest{UserId: userId}
-		result, err := client.GetBirthdayPersonByID(c, req)
 
+		result, err := client.GetBirthdayPersonByID(c, req)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
@@ -115,6 +122,8 @@ func main() {
 
 	})
 
+
+	
 	r.POST("/birthday", func(c *gin.Context) {
 
 		person := &pb.Person{}
