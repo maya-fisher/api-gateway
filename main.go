@@ -62,15 +62,17 @@ func main() {
 		cors.New(corsRouterConfig()),
 	)
 
+
 	r.PUT("/birthday/:userId", func(c *gin.Context) {
 		userId := c.Param("userId")
 
 		person := &pb.Person{
 			UserId: userId,
 		}
-		err = c.Bind(&person)
 
-		fmt.Println(person)
+		err = c.Bind(&person) //adds the given object from the body
+
+		fmt.Println("PERSON:",person)
 
 		req := &pb.GetBirthdayRequest{Person: person}
 		result, err := client.UpdateBirthdayByIdAndName(c, req)
@@ -102,8 +104,6 @@ func main() {
 
 		c.JSON(http.StatusOK, result)
 	})
-
-
 
 	r.GET("/birthday/:userId", func(c *gin.Context) {
 
