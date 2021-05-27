@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	address = "localhost:50054"
-	port    = ":6060"
+	address = "birthday-service:50054"
+	port    = ":8081"
 )
 
 func corsRouterConfig() cors.Config {
@@ -46,8 +46,8 @@ type person struct {
 }
 
 func main() {
-
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+	
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -87,8 +87,6 @@ func main() {
 
 	})
 
-
-
 	r.DELETE("/birthday/:userId", func(c *gin.Context) {
 		userId := c.Param("userId")
 
@@ -122,10 +120,8 @@ func main() {
 
 	})
 
-
-	
 	r.POST("/birthday", func(c *gin.Context) {
-
+		fmt.Println("in post")
 		person := &pb.Person{}
 		err := c.Bind(&person)
 
