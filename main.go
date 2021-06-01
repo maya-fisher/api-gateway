@@ -38,16 +38,21 @@ func corsRouterConfig() cors.Config {
 	return corsConfig
 }
 
-
 type person struct {
-	name string 
+	name     string
 	birthday int64
-	userId string 
+	userId   string
 }
 
 func main() {
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
-	
+
+	config, err := util.LoadConfig(".")
+	if err != nil {
+		Log.Fatal("cannot load config:" err)
+	}
+
+	conn, err := grpc.Dial(config.address, grpc.WithInsecure(), grpc.WithBlock())
+
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -62,8 +67,8 @@ func main() {
 		cors.New(corsRouterConfig()),
 	)
 
-
 	r.PUT("/birthday/:userId", func(c *gin.Context) {
+
 		userId := c.Param("userId")
 
 		person := &pb.Person{
@@ -72,7 +77,7 @@ func main() {
 
 		err = c.Bind(&person) //adds the given object from the body
 
-		fmt.Println("PERSON:",person)
+		fmt.Println("PERSON:", person)
 
 		req := &pb.GetBirthdayRequest{Person: person}
 		result, err := client.UpdateBirthdayByIdAndName(c, req)
@@ -143,5 +148,5 @@ func main() {
 		c.JSON(http.StatusOK, result)
 	})
 
-	r.Run(port)
+	r.Run(config.port)
 }
