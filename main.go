@@ -6,16 +6,14 @@ import (
 	"net/http"
 	"strings"
 
+	"example.com/m/util"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	pb "github.com/maya-fisher/birthday-service/proto"
 	"google.golang.org/grpc"
 )
 
-const (
-	address = "birthday-service:50054"
-	port    = ":8081"
-)
+
 
 func corsRouterConfig() cors.Config {
 	corsConfig := cors.DefaultConfig()
@@ -48,10 +46,10 @@ func main() {
 
 	config, err := util.LoadConfig(".")
 	if err != nil {
-		Log.Fatal("cannot load config:" err)
+		log.Fatal("cannot load config:", err)
 	}
 
-	conn, err := grpc.Dial(config.address, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial(config.ADDRESS, grpc.WithInsecure(), grpc.WithBlock())
 
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -148,5 +146,5 @@ func main() {
 		c.JSON(http.StatusOK, result)
 	})
 
-	r.Run(config.port)
+	r.Run(config.PORT)
 }

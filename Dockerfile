@@ -11,6 +11,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o api-gateway -v
 #final stage
 FROM golang:alpine
 # RUN apk --no-cache add curl
+COPY app.env .
 COPY --from=builder /app/api-gateway /api-gateway
 EXPOSE 8081
 ENTRYPOINT ["/api-gateway"]
